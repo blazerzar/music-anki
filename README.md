@@ -7,9 +7,14 @@ fetched from the web or generated as needed using Matplotlib.
 
 ## Decks
 
-- [Circle of Fifths](circle_of_fifths.py):
+- [Circle of Fifths](anki/decks/circle_of_fifths.py):
   - relative major/minor keys,
   - number of accidentals,
   - key signatures,
   - accidentals in each key,
   - perfect fourths and fifths between keys.
+
+- [Guitar Chord Notes](anki/decks/guitar_chord_notes.py):
+  - guitar chord names,
+  - note names in each chord,
+  - scale degrees in each chord.

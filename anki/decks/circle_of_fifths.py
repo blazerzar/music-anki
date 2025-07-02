@@ -15,7 +15,7 @@ from os import environ, mkdir, path, remove, rmdir
 import genanki
 from bs4 import BeautifulSoup
 
-from utils import card_model
+from anki.utils import card_model, note_to_latex
 
 EMAIL = environ.get('ANKI_BOT_EMAIL', '').strip()
 USER_AGENT = f'MusicAnkiBot/1.0 ({EMAIL})'
@@ -125,21 +125,11 @@ def main():
 
     package = genanki.Package(deck)
     package.media_files = media_files
-
     package.write_to_file(f'{OUTPUT_DIR}/circle_of_fifths.apkg')
 
     for filename in media_files:
         remove(filename)
     rmdir(TEMP_DIR)
-
-
-def note_to_latex(note):
-    """Use MathJax to render notes using \text and \sharp/\flat."""
-    accidental = ''
-    if len(note) == 2:
-        accidental = r'\sharp' if note[1] == '#' else r'\flat'
-        note = note[0]
-    return r'\(\text{' + note + '}' + accidental + r'\)'
 
 
 def note_to_filename(note):
