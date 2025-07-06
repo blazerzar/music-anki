@@ -1,6 +1,6 @@
 import unittest
 
-from anki.utils import chord_to_latex, degree_to_latex, note_to_latex
+from utils import chord_to_latex, degree_to_latex, note_to_latex
 
 
 class TestConvToLatex(unittest.TestCase):

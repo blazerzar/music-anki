@@ -1,7 +1,11 @@
-name,diagram,notes,degrees,fingering
-A,x02220,A E A C# E,1 5 1 3 5,0 1 1 1 0
-A,x02220,A E A C# E,1 5 1 3 5,0 2 1 3 0
-D,xx0232,D A D F#,1 5 1 3,0 1 3 2
-E,022100,E B E G# B E,1 5 1 3 5 1,0 2 3 1 0 0
-C,x32010,C E G C E,1 3 5 1 3,0 3 2 0 1
-G,320033,G B D G D G,1 3 5 1 5 1,2 1 0 0 3 4
+name,diagram,fingering,notes,degrees
+A,x02220,x01110,A E A C# E,1 5 1 3 5
+A,x02220,x02130,A E A C# E,1 5 1 3 5
+Am,x02210,x02310,A E A C E,1 5 1 b3 5
+D,xx0232,xx0132,D A D F#,1 5 1 3
+Dm,xx0231,xx0241,D A D F,1 5 1 b3
+E,022100,023100,E B E G# B E,1 5 1 3 5 1
+Em,022000,023000,E B E G B E,1 5 1 b3 5 1
+C,x32010,x32010,C E G C E,1 3 5 1 3
+G,320033,210034,G B D G D G,1 3 5 1 5 1
+F,133211,134211,F C F A C F,1 5 1 3 5 1

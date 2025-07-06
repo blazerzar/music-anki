@@ -15,7 +15,7 @@ from os import environ, mkdir, path, remove, rmdir
 import genanki
 from bs4 import BeautifulSoup
 
-from anki.utils import card_model, note_to_latex
+from utils import card_model, note_to_latex
 
 EMAIL = environ.get('ANKI_BOT_EMAIL', '').strip()
 USER_AGENT = f'MusicAnkiBot/1.0 ({EMAIL})'
