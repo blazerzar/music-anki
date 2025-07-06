@@ -27,3 +27,14 @@ The repository also contains scripts that can be used for different practices.
 shuffled notes. It can be used for practicing notes on the guitar neck:
 generate a set of notes, each note is played on each string, changing the
 note when reaching the E/e string.
+
+<p align="center">
+  <img src="screenshots/shuffled_notes.png" alt="Shuffled Notes" width="400px">
+</p>
+
+- [Chord Changes](practices/chord_changes.py): Generate samples of chords to
+practice chord changes between them.
+
+<p align="center">
+  <img src="screenshots/chord_changes.png" alt="Chord Changes" width="400px">
+</p>

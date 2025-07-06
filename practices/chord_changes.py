@@ -39,7 +39,7 @@ def main():
             exit(0)
 
     plt.rcParams['toolbar'] = 'None'
-    fig, ax = plt.subplots(1, sample_size, figsize=(0.8 + 3 * sample_size, 6))
+    fig, ax = plt.subplots(1, sample_size, figsize=(3.3 * sample_size, 5.5))
     fig.canvas.manager.set_window_title('Chord Changes')
     if sample_size == 1:
         ax = [ax]
@@ -60,7 +60,7 @@ def main():
     fig.canvas.mpl_connect('key_press_event', on_key)
 
     render(chords, sample_size, i, fig, ax)
-    plt.tight_layout()
+    fig.subplots_adjust(left=0, right=1, hspace=0, wspace=0)
     plt.show()
 
 
