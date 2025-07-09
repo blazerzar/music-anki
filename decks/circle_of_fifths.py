@@ -122,7 +122,7 @@ def main():
 
     package = genanki.Package(deck)
     package.media_files = media_files
-    package.write_to_file(f'{OUTPUT_DIR}/circle_of_fifths.apkg')
+    package.write_to_file(path.join(OUTPUT_DIR, 'circle_of_fifths.apkg'))
 
     for filename in media_files:
         remove(filename)

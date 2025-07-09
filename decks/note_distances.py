@@ -3,6 +3,8 @@ Create a deck for learning the number of note letters between two notes, e.g.,
 between C and F the distance is 4 (C, D, E, F).
 """
 
+from os import path
+
 import genanki
 
 from utils import card_model
@@ -31,7 +33,7 @@ def main():
             deck.add_note(note)
 
     package = genanki.Package(deck)
-    package.write_to_file(f'{OUTPUT_DIR}/note_distances.apkg')
+    package.write_to_file(path.join(OUTPUT_DIR, 'note_distances.apkg'))
 
 
 if __name__ == '__main__':

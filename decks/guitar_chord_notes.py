@@ -3,6 +3,7 @@ Create an Anki deck for naming notes and their scale degrees in guitar chords.
 """
 
 from os import mkdir, path, remove, rmdir
+from sys import argv
 
 import genanki
 import matplotlib.pyplot as plt
@@ -16,7 +17,8 @@ from utils import (
     note_to_latex,
 )
 
-CHORDS_FILE = path.join('data', 'guitar_chords.csv')
+GUITAR_CHORDS = path.join('data', 'guitar_chords.csv')
+UKULELE_CHORDS = path.join('data', 'ukulele_chords.csv')
 TEMP_DIR = 'temp_guitar_chord_notes'
 OUTPUT_DIR = 'out'
 
@@ -27,14 +29,21 @@ def main():
     if not path.exists(TEMP_DIR):
         mkdir(TEMP_DIR)
 
-    chords = load_chords(CHORDS_FILE)
+    if len(argv) > 1 and argv[1] == 'ukulele':
+        chords = load_chords(UKULELE_CHORDS)
+        deck = genanki.Deck(1440356293, 'Music::Ukulele Chord Notes')
+        out_file = path.join(OUTPUT_DIR, 'ukulele_chord_notes.apkg')
+        prefix = 'ukulele_'
+    else:
+        chords = load_chords(GUITAR_CHORDS)
+        deck = genanki.Deck(1541482719, 'Music::Guitar Chord Notes')
+        out_file = path.join(OUTPUT_DIR, 'guitar_chord_notes.apkg')
+        prefix = 'guitar_'
 
     # Remove duplicate chords with different fingerings
     chords = list({chord.name: chord for chord in chords}.values())
 
     media_files = []
-    deck = genanki.Deck(1541482719, 'Music::Guitar Chord Notes')
-
     table_style = 'style="margin-left: auto; margin-right: auto; padding: 10px;"'
 
     for chord in chords:
@@ -46,7 +55,7 @@ def main():
 
         fig, ax = plt.subplots(figsize=(4, 6))
         chord_diagram(chord, ax, show_name=False)
-        filename = path.join(TEMP_DIR, f'{chord.name}.png')
+        filename = path.join(TEMP_DIR, f'{prefix}{chord.name}.png')
         plt.savefig(filename, bbox_inches='tight')
 
         media_files.append(filename)
@@ -54,7 +63,7 @@ def main():
         note = genanki.Note(
             model=card_model,
             fields=[
-                f'<img src="{chord.name}.png" width="150px">',
+                f'<img src="{prefix}{chord.name}.png" width="150px">',
                 f'{chord_to_latex(chord.name)}<br>{notes_table}',
             ],
         )
@@ -62,7 +71,7 @@ def main():
 
     package = genanki.Package(deck)
     package.media_files = media_files
-    package.write_to_file(f'{OUTPUT_DIR}/guitar_chord_notes.apkg')
+    package.write_to_file(out_file)
 
     for file in media_files:
         remove(file)
