@@ -81,72 +81,103 @@ def chord_to_latex(chord):
     return r'\(' + name + r'\)'
 
 
-def chord_diagram(
-    diagram,
-    fingering,
-    name,
-    show_fingering=False,
-    show_name=True,
-    fig=None,
-    ax=None,
-):
-    if fig is None or ax is None:
-        fig, ax = plt.subplots(figsize=(4, 6))
-    if show_name:
-        ax.set_title(name, fontsize=32)
+class Chord:
+    def __init__(self, name, diagram, fingering, notes, degrees):
+        self.name = name
+        self.diagram = [None if d == 'x' else int(d) for d in diagram.split()]
+        self.fingering = [None if f == 'x' else int(f) for f in fingering.split()]
+        self.notes = notes.split()
+        self.degrees = degrees.split()
 
-    ax.add_patch(plt.Rectangle((0, 0), 5, 7, ec='black', fc='white', lw=1.5))
-    # Strings
-    for x in range(4):
-        ax.add_line(plt.Line2D([x + 1, x + 1], [0, 7], color='black', lw=1.5))
+    def __repr__(self):
+        return f'{self.name}({self.diagram}, {self.fingering})'
+
+
+def load_chords(filename) -> list[Chord]:
+    chords = []
+    with open(filename, 'r', encoding='utf-8') as f:
+        next(f)
+        for line in f:
+            args = line.strip().split(',')
+            chords.append(Chord(*args))
+    return chords
+
+
+def blank_diagram(ax, num_strings, first_fret=1):
+    """Draws a blank chord diagram on the given axes. Number of strings is
+    supplied to support guitar and ukulele chords. If the first fret is 1,
+    the nut is drawn, otherwise we instead write the fret number."""
+    if num_strings < 2:
+        raise ValueError('Number of strings must be at least 2.')
+
+    # Frame
+    w, h = num_strings - 1, 7
+    ax.add_patch(plt.Rectangle((0, 0), w, h, ec='black', fc='white', lw=1.5))
+
+    # Interior strings
+    for x in range(num_strings - 2):
+        ax.add_line(plt.Line2D([x + 1, x + 1], [0, h], color='black', lw=1.5))
+
     # Frets
+    fret_length = num_strings - 1
+    num_frets = 5
     for i in range(4):
-        y = 7 * (i + 1) / 5
-        ax.add_line(plt.Line2D([0, 5], [y, y], color='black', lw=1.5))
-    # Nut
-    ax.add_patch(plt.Rectangle((0, 7), 5, 0.1, color='black', lw=1.5))
+        y = h * (i + 1) / num_frets
+        ax.add_line(plt.Line2D([0, fret_length], [y, y], color='black', lw=1.5))
+
+    if first_fret == 1:
+        # Nut
+        ax.add_patch(plt.Rectangle((0, h), fret_length, 0.1, color='black', lw=1.5))
+    else:
+        kwargs = {'fontsize': 16, 'ha': 'center', 'va': 'center'}
+        x, y = fret_length + 0.55, (h + 0.7) - h / num_frets
+        ax.text(x, y, str(first_fret), **kwargs)
+
+
+def chord_diagram(chord: Chord, ax, show_fingering=False, show_name=True):
+    if show_name:
+        ax.set_title(chord.name, fontsize=32)
+
+    num_strings = len(chord.diagram)
+    lowest_fret = min(f for f in chord.diagram if f is not None)
+    highest_fret = max(f for f in chord.diagram if f is not None)
+    first_fret = 1 if highest_fret <= 5 else lowest_fret
+    blank_diagram(ax, num_strings, first_fret)
 
     # Find and draw bars
     bars = {}
-    for finger in ['1', '2', '3', '4']:
-        strings = [i for i, f in enumerate(fingering) if f == finger]
+    for finger in [1, 2, 3, 4]:
+        strings = [i for i, f in enumerate(chord.fingering) if f == finger]
         if len(strings) > 1:
             bar_start = min(strings)
             bar_end = max(strings)
             bars[finger] = bar_start, bar_end
 
-            bar_fret = int(diagram[bar_start])
+            bar_fret = chord.diagram[bar_start] - first_fret + 1
             x, y = bar_start, 7.7 - 7 * bar_fret / 5 - 0.35
             width, height = bar_end - bar_start, 0.7
             ax.add_patch(plt.Rectangle((x, y), width, height, color='k', lw=0))
 
-    for string, (fret, finger) in enumerate(zip(diagram, fingering)):
-        if fret == 'x' or fret == '0':
+    for string, (fret, finger) in enumerate(zip(chord.diagram, chord.fingering)):
+        if not fret:
             args = string, 7.5, 160
-            m = 'x' if fret == 'x' else 'o'
+            m = 'x' if fret is None else 'o'
             kwargs = (
                 {'c': 'black'}
-                if fret == 'x'
+                if fret is None
                 else {'edgecolor': 'black', 'facecolor': 'white'}
             )
             ax.scatter(*args, marker=m, **kwargs, lw=2.2)
         else:
-            fret = int(fret)
-            y = 7.7 - 7 * fret / 5
+            y = 7.7 - 7 * (fret - first_fret + 1) / 5
             x = string
             if finger not in bars or string in bars[finger]:
                 ax.add_patch(plt.Circle((x, y), 0.35, color='black', lw=0))
             if show_fingering:
-                ax.text(
-                    x,
-                    y - 0.05,
-                    finger,
-                    fontsize=14,
-                    ha='center',
-                    va='center',
-                    color='white',
-                )
+                kwargs = {'ha': 'center', 'va': 'center', 'color': 'white'}
+                ax.text(x, y - 0.05, finger, fontsize=14, **kwargs)
 
     ax.set_aspect('equal', adjustable='box')
+    ax.set_xlim(-1, num_strings)
+    ax.set_ylim(-0.1, 8)
     ax.axis('off')
-    return fig, ax

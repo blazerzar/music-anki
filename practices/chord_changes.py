@@ -2,7 +2,12 @@
 them.
 
 Usage:
-    python practices/chord_changes.py [options]
+    python practices/chord_changes.py [ukulele|chords csv file path] [options]
+
+Examples:
+    python practices/chord_changes.py --n 3
+    python practices/chord_changes.py ukulele
+    python practices/chord_changes.py my_chords.csv --chords 10 --n 4
 
 Arguments:
     --chords num: number of chord samples, by default, all chords are used
@@ -19,14 +24,14 @@ from random import shuffle
 import matplotlib.pyplot as plt
 
 sys.path.append(path.join(path.dirname(path.abspath(__file__)), '..'))
-from utils import chord_diagram
+from utils import chord_diagram, load_chords
 
-CHORDS_FILE = path.join('data', 'chords.csv')
+GUITAR_CHORDS = path.join('data', 'guitar_chords.csv')
+UKULELE_CHORDS = path.join('data', 'ukulele_chords.csv')
 
 
 def main():
-    chords = load_chords(CHORDS_FILE)
-    num_chords = len(chords)
+    chords_file = GUITAR_CHORDS
     sample_size = 2
 
     for i, arg in enumerate(sys.argv):
@@ -37,9 +42,17 @@ def main():
         elif arg == '--help':
             print(__doc__, end='')
             exit(0)
+        elif i == 1 and arg == 'ukulele':
+            chords_file = UKULELE_CHORDS
+        elif i == 1 and arg.endswith('.csv'):
+            chords_file = arg
+
+    chords = load_chords(chords_file)
+    num_chords = len(chords)
 
     plt.rcParams['toolbar'] = 'None'
-    fig, ax = plt.subplots(1, sample_size, figsize=(3.3 * sample_size, 5.5))
+    width = (3.3 if len(chords[0].diagram) == 6 else 2.5) * sample_size
+    fig, ax = plt.subplots(1, sample_size, figsize=(width, 5.4))
     fig.canvas.manager.set_window_title('Chord Changes')
     if sample_size == 1:
         ax = [ax]
@@ -64,33 +77,14 @@ def main():
     plt.show()
 
 
-def load_chords(filename):
-    chords = []
-    with open(filename, 'r', encoding='utf-8') as f:
-        next(f)
-        for line in f:
-            name, diagram, fingering, notes, degrees = line.strip().split(',')
-            chords.append((name, diagram, fingering, notes, degrees))
-    return chords
-
-
 def render(chords, sample_size, i, fig, ax):
     """Renders the i-th sample of chords, each onto a separate subplot in ax."""
     sampled_chords = chords[i : i + sample_size]
     if len(sampled_chords) < sample_size:
         plt.close(fig)
 
-    for j, (name, diagram, fingering, *_) in enumerate(sampled_chords):
-        chord_diagram(
-            diagram,
-            fingering,
-            name,
-            fig=fig,
-            ax=ax[j],
-            show_fingering=True,
-        )
-        ax[j].set_ylim(-0.1, 8.5)
-        ax[j].set_xlim(-1, 6)
+    for j, chord in enumerate(sampled_chords):
+        chord_diagram(chord, ax[j], show_fingering=True)
 
 
 if __name__ == '__main__':

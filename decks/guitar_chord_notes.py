@@ -7,9 +7,16 @@ from os import mkdir, path, remove, rmdir
 import genanki
 import matplotlib.pyplot as plt
 
-from utils import card_model, chord_diagram, note_to_latex
+from utils import (
+    card_model,
+    chord_diagram,
+    chord_to_latex,
+    degree_to_latex,
+    load_chords,
+    note_to_latex,
+)
 
-CHORDS_FILE = path.join('data', 'chords.csv')
+CHORDS_FILE = path.join('data', 'guitar_chords.csv')
 TEMP_DIR = 'temp_guitar_chord_notes'
 OUTPUT_DIR = 'out'
 
@@ -22,35 +29,33 @@ def main():
 
     chords = load_chords(CHORDS_FILE)
 
+    # Remove duplicate chords with different fingerings
+    chords = list({chord.name: chord for chord in chords}.values())
+
     media_files = []
-    deck = genanki.Deck(
-        1541482719,
-        'Music::Guitar Chord Notes',
-    )
+    deck = genanki.Deck(1541482719, 'Music::Guitar Chord Notes')
 
     table_style = 'style="margin-left: auto; margin-right: auto; padding: 10px;"'
 
-    for name, diagram, fingering, notes, degrees in chords:
+    for chord in chords:
         notes_table = f'<table {table_style}>'
-        for row in [notes, degrees]:
-            r = ''.join(f'<td>{note_to_latex(note)}</td>' for note in row.split())
+        for row, f in [(chord.notes, note_to_latex), (chord.degrees, degree_to_latex)]:
+            r = ''.join(f'<td>{f(note)}</td>' for note in row)
             notes_table += f'<tr>{r}</tr>'
         notes_table += '</table>'
 
-        fig, ax = chord_diagram(diagram, fingering, name, show_name=False)
-        filename = path.join(TEMP_DIR, f'{name}.png')
-        plt.xlim(-0.5, 5.5)
-        plt.ylim(-0.1, 7.8)
-        fig.savefig(filename, bbox_inches='tight')
-        plt.close(fig)
+        fig, ax = plt.subplots(figsize=(4, 6))
+        chord_diagram(chord, ax, show_name=False)
+        filename = path.join(TEMP_DIR, f'{chord.name}.png')
+        plt.savefig(filename, bbox_inches='tight')
 
         media_files.append(filename)
 
         note = genanki.Note(
             model=card_model,
             fields=[
-                f'<img src="{name}.png" width="120px">',
-                f'{note_to_latex(name)}<br>{notes_table}',
+                f'<img src="{chord.name}.png" width="150px">',
+                f'{chord_to_latex(chord.name)}<br>{notes_table}',
             ],
         )
         deck.add_note(note)
@@ -62,21 +67,6 @@ def main():
     for file in media_files:
         remove(file)
     rmdir(TEMP_DIR)
-
-
-def load_chords(filename):
-    chords = []
-    names = set()
-    with open(filename, 'r', encoding='utf-8') as f:
-        next(f)
-        for line in f:
-            name, diagram, fingering, notes, degrees = line.strip().split(',')
-            if name in names:
-                continue
-
-            chords.append((name, diagram, fingering, notes, degrees))
-            names.add(name)
-    return chords
 
 
 if __name__ == '__main__':

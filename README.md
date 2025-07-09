@@ -7,17 +7,19 @@ fetched from the web or generated as needed using Matplotlib.
 
 ## Decks
 
-- [Circle of Fifths](anki/decks/circle_of_fifths.py):
+- [Circle of Fifths](decks/circle_of_fifths.py):
   - relative major/minor keys,
   - number of accidentals,
   - key signatures,
   - accidentals in each key,
   - perfect fourths and fifths between keys.
 
-- [Guitar Chord Notes](anki/decks/guitar_chord_notes.py):
+- [Guitar Chord Notes](decks/guitar_chord_notes.py):
   - guitar chord names,
   - note names in each chord,
   - scale degrees in each chord.
+
+- [Note Distances](decks/note_distances.py): size of intervals between notes.
 
 ## Practice scripts
 
@@ -29,12 +31,13 @@ generate a set of notes, each note is played on each string, changing the
 note when reaching the E/e string.
 
 <p align="center">
-  <img src="screenshots/shuffled_notes.png" alt="Shuffled Notes" width="400px">
+  <img src="screenshots/shuffled_notes.png" alt="Shuffled Notes" width="300px">
 </p>
 
 - [Chord Changes](practices/chord_changes.py): Generate samples of chords to
 practice chord changes between them.
 
 <p align="center">
-  <img src="screenshots/chord_changes.png" alt="Chord Changes" width="400px">
+  <img src="screenshots/chord_changes_guitar.png" alt="Chord Changes" height="300px">
+  <img src="screenshots/chord_changes_ukulele.png" alt="Chord Changes" height="300px">
 </p>

@@ -38,10 +38,7 @@ def main():
     accidental_notes = 'F C G D A E B'.split()
 
     media_files = []
-    deck = genanki.Deck(
-        1831548167,
-        'Music::Circle of Fifths',
-    )
+    deck = genanki.Deck(1831548167, 'Music::Circle of Fifths')
 
     for i, (maj, min, acc) in enumerate(zip(majors, minors, accidentals)):
         maj_tex = note_to_latex(maj)
