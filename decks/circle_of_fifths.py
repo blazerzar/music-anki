@@ -1,5 +1,5 @@
 """
-Create an Anki deck for learning the circle of fifths:
+Creates an Anki deck for learning the circle of fifths:
     - Relative minors of major keys.
     - Relative majors of minor keys.
     - Number of sharps/flats in different keys.

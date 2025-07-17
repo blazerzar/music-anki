@@ -1,5 +1,5 @@
 """
-Create a deck for learning the number of note letters between two notes, e.g.,
+Creates a deck for learning the number of note letters between two notes, e.g.,
 between C and F the distance is 4 (C, D, E, F).
 """
 

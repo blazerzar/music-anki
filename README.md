@@ -21,6 +21,8 @@ fetched from the web or generated as needed using Matplotlib.
 
 - [Note Distances](decks/note_distances.py): size of intervals between notes.
 
+- [Interval Sizes](decks/interval_sizes.py): size of named intervals.
+
 ## Practice scripts
 
 The repository also contains scripts that can be used for different practices.
