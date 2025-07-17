@@ -83,11 +83,21 @@ def chord_to_latex(chord):
 
 class Chord:
     def __init__(self, name, diagram, fingering, notes, degrees):
+        """Initializes a chord with its name, diagram, fingering, notes, and
+        degrees. The diagram, fingering, notes and degrees are space-separated
+        strings, with unused strings represented by 'x' in all cases.
+        """
         self.name = name
         self.diagram = [None if d == 'x' else int(d) for d in diagram.split()]
         self.fingering = [None if f == 'x' else int(f) for f in fingering.split()]
         self.notes = notes.split()
         self.degrees = degrees.split()
+
+        d = len(self.diagram)
+        f = len(self.fingering)
+        n = len(self.notes)
+        deg = len(self.degrees)
+        assert len({d, f, n, deg}) == 1
 
     def __repr__(self):
         return f'{self.name}({self.diagram}, {self.fingering})'

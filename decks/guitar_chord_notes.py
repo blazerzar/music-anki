@@ -1,5 +1,5 @@
 """
-Create an Anki deck for naming notes and their scale degrees in guitar chords.
+Creates an Anki deck for naming notes and their scale degrees in guitar chords.
 """
 
 from os import mkdir, path, remove, rmdir
@@ -33,15 +33,19 @@ def main():
         chords = load_chords(UKULELE_CHORDS)
         deck = genanki.Deck(1440356293, 'Music::Ukulele Chord Notes')
         out_file = path.join(OUTPUT_DIR, 'ukulele_chord_notes.apkg')
-        prefix = 'ukulele_'
+        prefix = 'ukulele'
     else:
         chords = load_chords(GUITAR_CHORDS)
         deck = genanki.Deck(1541482719, 'Music::Guitar Chord Notes')
         out_file = path.join(OUTPUT_DIR, 'guitar_chord_notes.apkg')
-        prefix = 'guitar_'
+        prefix = 'guitar'
 
     # Remove duplicate chords with different fingerings
-    chords = list({chord.name: chord for chord in chords}.values())
+    chords = {
+        ' '.join(str(d) if d is not None else 'x' for d in chord.diagram): chord
+        for chord in chords
+    }
+    chords = list(chords.values())
 
     media_files = []
     table_style = 'style="margin-left: auto; margin-right: auto; padding: 10px;"'
@@ -49,21 +53,25 @@ def main():
     for chord in chords:
         notes_table = f'<table {table_style}>'
         for row, f in [(chord.notes, note_to_latex), (chord.degrees, degree_to_latex)]:
-            r = ''.join(f'<td>{f(note)}</td>' for note in row)
+            r = ''.join(f'<td>{f(note)}</td>' for note in row if note != 'x')
             notes_table += f'<tr>{r}</tr>'
         notes_table += '</table>'
 
         fig, ax = plt.subplots(figsize=(4, 6))
         chord_diagram(chord, ax, show_name=False)
-        filename = path.join(TEMP_DIR, f'{prefix}{chord.name}.png')
-        plt.savefig(filename, bbox_inches='tight')
+        name = chord.name.replace('/', '_')
+        diagram = ''.join(str(d) if d is not None else 'x' for d in chord.diagram)
+        filename = f'{prefix}_{name}_{diagram}.png'
+        filepath = path.join(TEMP_DIR, filename)
+        plt.savefig(filepath, bbox_inches='tight')
+        plt.close()
 
-        media_files.append(filename)
+        media_files.append(filepath)
 
         note = genanki.Note(
             model=card_model,
             fields=[
-                f'<img src="{prefix}{chord.name}.png" width="150px">',
+                f'<img src="{filename}" width="150px">',
                 f'{chord_to_latex(chord.name)}<br>{notes_table}',
             ],
         )
