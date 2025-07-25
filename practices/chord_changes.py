@@ -32,6 +32,7 @@ UKULELE_CHORDS = path.join('data', 'ukulele_chords.csv')
 
 def main():
     chords_file = GUITAR_CHORDS
+    num_chords = None
     sample_size = 2
 
     for i, arg in enumerate(sys.argv):
@@ -48,7 +49,10 @@ def main():
             chords_file = arg
 
     chords = load_chords(chords_file)
-    num_chords = len(chords)
+    if num_chords is None:
+        num_chords = len(chords)
+
+    samples = num_chords // sample_size
 
     plt.rcParams['toolbar'] = 'None'
     width = (3.3 if len(chords[0].diagram) == 6 else 2.5) * sample_size
@@ -57,34 +61,37 @@ def main():
     if sample_size == 1:
         ax = [ax]
 
+    counter = fig.text(0.5, 0.07, '', fontsize=9, ha='center', va='center', alpha=0.5)
+
     shuffle(chords)
     chords = chords[:num_chords]
     i = 0
 
     def on_key(event):
-        nonlocal i
+        nonlocal i, samples
         if event.key == ' ':
-            i += sample_size
+            i += 1
             for j in range(sample_size):
                 ax[j].cla()
-            render(chords, sample_size, i, fig, ax)
+            render(chords, sample_size, i, samples, fig, ax, counter)
             plt.draw()
 
     fig.canvas.mpl_connect('key_press_event', on_key)
 
-    render(chords, sample_size, i, fig, ax)
+    render(chords, sample_size, i, samples, fig, ax, counter)
     fig.subplots_adjust(left=0, right=1, hspace=0, wspace=0)
     plt.show()
 
 
-def render(chords, sample_size, i, fig, ax):
+def render(chords, sample_size, i, samples, fig, ax, counter):
     """Renders the i-th sample of chords, each onto a separate subplot in ax."""
-    sampled_chords = chords[i : i + sample_size]
+    sampled_chords = chords[i * sample_size : (i + 1) * sample_size]
     if len(sampled_chords) < sample_size:
         plt.close(fig)
 
     for j, chord in enumerate(sampled_chords):
         chord_diagram(chord, ax[j], show_fingering=True)
+    counter.set_text(f'{i + 1}/{samples}')
 
 
 if __name__ == '__main__':
