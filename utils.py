@@ -82,7 +82,7 @@ def chord_to_latex(chord):
 
 
 class Chord:
-    def __init__(self, name, diagram, fingering, notes, degrees):
+    def __init__(self, name, diagram='', fingering='', notes='', degrees=''):
         """Initializes a chord with its name, diagram, fingering, notes, and
         degrees. The diagram, fingering, notes and degrees are space-separated
         strings, with unused strings represented by 'x' in all cases.
@@ -93,14 +93,26 @@ class Chord:
         self.notes = notes.split()
         self.degrees = degrees.split()
 
-        d = len(self.diagram)
-        f = len(self.fingering)
-        n = len(self.notes)
-        deg = len(self.degrees)
-        assert len({d, f, n, deg}) == 1
+        lengths = {
+            len(self.diagram),
+            len(self.fingering),
+            len(self.notes),
+            len(self.degrees),
+        }
+        assert len(lengths) == 1 or len(lengths - {0}) == 1
 
     def __repr__(self):
         return f'{self.name}({self.diagram}, {self.fingering})'
+
+    def __eq__(self, other):
+        if not isinstance(other, Chord):
+            return False
+        equal = self.name == other.name
+        if self.diagram != [] and other.diagram != []:
+            equal = equal and self.diagram == other.diagram
+        if self.fingering != [] and other.fingering != []:
+            equal = equal and self.fingering == other.fingering
+        return equal
 
 
 def load_chords(filename) -> list[Chord]:
