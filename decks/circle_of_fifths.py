@@ -37,6 +37,8 @@ def main():
     accidentals = '0_ 1# 2# 3# 4# 5# 6# 7# 7b 6b 5b 4b 3b 2b 1b'.split()
     accidental_notes = 'F C G D A E B'.split()
 
+    img_css = 'style="padding-bottom: 10px;" width="200px"'
+
     media_files = []
     deck = genanki.Deck(1831548167, 'Music::Circle of Fifths')
 
@@ -83,7 +85,8 @@ def main():
         note = genanki.Note(
             model=card_model,
             fields=[
-                f'<img class="key-img" src="{filename}" width="200px">',
+                f'<img class="key-img" src="{filename}" {img_css}><br>'
+                'Name major/minor key signature.',
                 f'{maj_tex} / {min_tex}',
             ],
         )
