@@ -13,8 +13,16 @@ Arguments:
     --help: show script usage documentation
 
 If both --flats and --sharps are specified, the output will contain both, but
-not enharmonically equivalent notes at the same time, e.g., F# and Gb. Pressing
-space will regenerate the notes in the GUI, and q will quit the program.
+not enharmonically equivalent notes at the same time, e.g., F# and Gb.
+
+Keybindings:
+    space: regenerate notes
+    n: toggle natural notes
+    b: toggle flats
+    s: toggle sharps
+    up arrow: increase number of notes
+    down arrow: decrease number of notes
+    q: quit the program
 """
 
 from random import sample
@@ -36,12 +44,18 @@ notes = [
 ]
 
 
+def number_of_notes(natural, flats, sharps):
+    notes = 7 * natural
+    notes += 5 * (flats or sharps)
+    return notes
+
+
 def main():
     if len(argv) < 2:
         print(__doc__, end='')
         exit(1)
 
-    note_indices = [0, 1, 2, 3, 4, 5, 6]
+    natural = True
     flats = False
     sharps = False
     text = False
@@ -50,8 +64,7 @@ def main():
         flats = flats or arg == '--flats'
         sharps = sharps or arg == '--sharps'
         text = text or arg == '--text'
-        if arg == '-N':
-            note_indices = []
+        natural = natural and arg != '-N'
 
         if arg == '--help':
             print(__doc__, end='')
@@ -63,15 +76,12 @@ def main():
         exit(1)
     num_notes = int(num_notes)
 
-    if flats or sharps:
-        note_indices += [7, 8, 9, 10, 11]
-
-    available = len(note_indices)
+    available = number_of_notes(natural, flats, sharps)
     if num_notes > available:
         print(f'Cannot generate {num_notes} notes, only {available} available.')
         exit(1)
 
-    lines, rows, cols = create_output_lines(note_indices, num_notes, flats, sharps)
+    lines, rows, cols = create_output_lines(num_notes, natural, flats, sharps)
 
     if text:
         for i in range(rows):
@@ -85,26 +95,46 @@ def main():
         import matplotlib.pyplot as plt
 
         plt.rcParams['toolbar'] = 'None'
-        fig, ax = plt.subplots(figsize=(2.2 if cols == 1 else 5.5, rows * 0.9))
+        fig, ax = plt.subplots()
         fig.canvas.manager.set_window_title('Shuffled Notes')
 
         def on_key(event):
-            if event.key == ' ':
-                args = create_output_lines(note_indices, num_notes, flats, sharps)
+            nonlocal num_notes, natural, flats, sharps
+
+            natural = not natural if event.key == 'n' else natural
+            flats = not flats if event.key == 'b' else flats
+            sharps = not sharps if event.key == 's' else sharps
+            if not any((natural, flats, sharps)):
+                natural = True
+
+            num_notes += (event.key == 'up') - (event.key == 'down')
+            available = number_of_notes(natural, flats, sharps)
+            num_notes = max(1, min(num_notes, available))
+
+            need_redraw = event.key in (' ', 'up', 'down', 'n', 'b', 's')
+            if need_redraw:
+                args = create_output_lines(num_notes, natural, flats, sharps)
                 ax.cla()
-                render(*args, ax)
+                render(*args, fig, ax)
                 plt.draw()
 
         fig.canvas.mpl_connect('key_press_event', on_key)
 
-        render(lines, rows, cols, ax)
+        render(lines, rows, cols, fig, ax)
         plt.show()
 
 
-def create_output_lines(note_indices, num_notes, flats, sharps):
+def create_output_lines(num_notes, natural, flats, sharps):
     """Samples num_notes from note_indices and formats them into an enumerated
     list. If accidentals are included, they are written as sharps or flats,
     depending on the configuration."""
+
+    note_indices = []
+    if natural:
+        note_indices += [0, 1, 2, 3, 4, 5, 6]
+    if flats or sharps:
+        note_indices += [7, 8, 9, 10, 11]
+
     selected_notes = sample(note_indices, num_notes)
     output = ''
     for i, note in enumerate(selected_notes):
@@ -127,7 +157,10 @@ def create_output_lines(note_indices, num_notes, flats, sharps):
     return lines, rows, cols
 
 
-def render(lines, rows, cols, ax):
+def render(lines, rows, cols, fig, ax):
+    fig.set_figwidth(2.2 if cols == 1 else 5.5)
+    fig.set_figheight(rows * 0.9)
+
     # Left column can be stripped because numbers are always 1 digit
     left_col = [line.strip() for line in lines[:rows]]
     right_col = lines[rows:]
