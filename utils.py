@@ -161,8 +161,8 @@ def chord_diagram(chord: Chord, ax, show_fingering=False, show_name=True):
         ax.set_title(chord.name, fontsize=32)
 
     num_strings = len(chord.diagram)
-    lowest_fret = min(f for f in chord.diagram if f is not None)
-    highest_fret = max(f for f in chord.diagram if f is not None)
+    lowest_fret = min(f for f in chord.diagram if f)
+    highest_fret = max(f for f in chord.diagram if f)
     first_fret = 1 if highest_fret <= 5 else lowest_fret
     blank_diagram(ax, num_strings, first_fret)
 
